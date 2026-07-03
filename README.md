@@ -1,0 +1,10 @@
+ <script>
+    let dados = [
+      {unidade:"Apucarana", metaMes:36825.88, saldoMes:13915.86, metaAno:257781.16, saldoAno:-230498.38},
+      {unidade:"Castanhal", metaMes:236963.27, saldoMes:224514.16, metaAno:1917438.17, saldoAno:176608.13},
+      {unidade:"Eldorado", metaMes:158586.91, saldoMes:91827.64, metaAno:1094150.05, saldoAno:66324.83},
+      {unidade:"Lins", metaMes:647951.71, saldoMes:546887.52, metaAno:4433247.52, saldoAno:857025.24},
+      {unidade:"Nova Serrana", metaMes:16997.07, saldoMes:16997.07, metaAno:118979.49, saldoAno:37466.03},
+      {unidade:"Pouso Alto", metaMes:0, saldoMes:0, metaAno:0, saldoAno:-61522.01},
+      {unidade:"São Paulo", metaMes:2000.12, saldoMes:396.88, metaAno:14000.84, saldoAno:4548.28}
+    ];
