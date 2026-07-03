@@ -595,210 +595,7 @@
       }
     }
 
-  
-/* ===== AJUSTE PARA CELULAR ===== */
-@media (max-width: 768px) {
-  body {
-    overflow:auto;
-  }
-
-  .app {
-    width:100%;
-    min-height:100vh;
-    height:auto;
-    padding:12px;
-    display:block;
-  }
-
-  header {
-    display:grid;
-    grid-template-columns:90px 1fr;
-    gap:12px;
-    align-items:center;
-  }
-
-  .logoBox {
-    width:90px;
-    height:85px;
-    border-radius:16px;
-  }
-
-  .title h1 {
-    font-size:14px;
-  }
-
-  .title h2 {
-    font-size:34px;
-  }
-
-  .title p {
-    font-size:14px;
-    white-space:normal;
-  }
-
-  .topRight {
-    grid-column:1 / -1;
-    display:grid;
-    grid-template-columns:1fr;
-    gap:8px;
-    margin-top:10px;
-  }
-
-  .control {
-    padding:10px 12px;
-  }
-
-  nav {
-    display:grid;
-    grid-template-columns:repeat(2, 1fr);
-    gap:6px;
-    margin-top:12px;
-    border-bottom:0;
-  }
-
-  .tab {
-    height:48px;
-    font-size:15px;
-    border:1px solid var(--line);
-    border-radius:12px;
-  }
-
-  .uploadBar {
-    margin:10px 0;
-    display:grid;
-    grid-template-columns:1fr;
-  }
-
-  .btn {
-    width:100%;
-    padding:12px;
-  }
-
-  .kpis {
-    grid-template-columns:1fr;
-    gap:10px;
-    margin-bottom:10px;
-  }
-
-  .kpi {
-    padding:14px;
-  }
-
-  .kpiIcon {
-    width:48px;
-    height:48px;
-    font-size:24px;
-  }
-
-  .kpi .value {
-    font-size:24px;
-  }
-
-  #custos {
-    display:block;
-  }
-
-  .panel {
-    margin-bottom:12px;
-    overflow:auto;
-  }
-
-  .panelTitle {
-    height:auto;
-    min-height:48px;
-    padding:10px 12px;
-    font-size:15px;
-    gap:8px;
-    flex-wrap:wrap;
-  }
-
-  table {
-    min-width:680px;
-    font-size:13px;
-  }
-
-  th, td {
-    padding:8px;
-  }
-
-  .chartArea {
-    padding:12px;
-    gap:12px;
-  }
-
-  .barRow {
-    grid-template-columns:95px minmax(0,1fr) 62px;
-    gap:8px;
-    font-size:13px;
-  }
-
-  .bottomCards {
-    grid-template-columns:1fr;
-    gap:8px;
-    margin-top:10px;
-  }
-
-  .smallCard {
-    padding:12px;
-  }
-
-  footer {
-    height:auto;
-    padding:12px 0;
-    font-size:13px;
-    text-align:center;
-  }
-
-  footer div {
-    flex-direction:column;
-    gap:6px;
-  }
-
-  .placeholder {
-    padding:30px 12px;
-    margin-top:10px;
-  }
-
-  .placeholder h2 {
-    font-size:30px;
-  }
-
-  .placeholder p {
-    font-size:16px;
-  }
-}
-
-/* ===== AJUSTE PARA TABLET ===== */
-@media (min-width: 769px) and (max-width: 1100px) {
-  .app {
-    height:auto;
-    min-height:100vh;
-    overflow:visible;
-  }
-
-  header {
-    grid-template-columns:120px 1fr;
-  }
-
-  .topRight {
-    grid-column:1 / -1;
-    grid-template-columns:repeat(3,1fr);
-  }
-
-  .kpis {
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  #custos {
-    grid-template-columns:1fr;
-  }
-
-  .bottomCards {
-    grid-template-columns:repeat(2,1fr);
-  }
-}
-
-</style>
+  </style>
 </head>
 <body>
   <div class="app">
@@ -955,15 +752,7 @@
   </div>
 
   <script>
-    let dados = [
-      {unidade:"Apucarana", metaMes:36825.88, saldoMes:13915.86, metaAno:257781.16, saldoAno:-230498.38},
-      {unidade:"Castanhal", metaMes:236963.27, saldoMes:224514.16, metaAno:1917438.17, saldoAno:176608.13},
-      {unidade:"Eldorado", metaMes:158586.91, saldoMes:91827.64, metaAno:1094150.05, saldoAno:66324.83},
-      {unidade:"Lins", metaMes:647951.71, saldoMes:546887.52, metaAno:4433247.52, saldoAno:857025.24},
-      {unidade:"Nova Serrana", metaMes:16997.07, saldoMes:16997.07, metaAno:118979.49, saldoAno:37466.03},
-      {unidade:"Pouso Alto", metaMes:0, saldoMes:0, metaAno:0, saldoAno:-61522.01},
-      {unidade:"São Paulo", metaMes:2000.12, saldoMes:396.88, metaAno:14000.84, saldoAno:4548.28}
-    ];
+    let dados = [];
 
     function moeda(v) {
       return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
@@ -1192,8 +981,34 @@
 
     document.getElementById("toggleApresentacao").addEventListener("click",()=>ativo?pausar():iniciar());
 
+    async function carregarDadosJson() {
+      try {
+        const resposta = await fetch("dados.json?cache=" + new Date().getTime());
+
+        if (!resposta.ok) {
+          throw new Error("Não foi possível carregar dados.json");
+        }
+
+        const dadosJson = await resposta.json();
+
+        if (Array.isArray(dadosJson) && dadosJson.length > 0) {
+          dados = dadosJson;
+          statusAgora("Dados atualizados");
+        } else {
+          statusAgora("dados.json vazio");
+        }
+      } catch (erro) {
+        console.error(erro);
+        statusAgora("Erro ao carregar dados");
+      }
+
+      render();
+    }
+
     dataAtual();
-    render();
+    carregarDadosJson();
+
+    setInterval(carregarDadosJson, 60000);
   </script>
 </body>
 </html>
