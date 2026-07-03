@@ -53,7 +53,7 @@
       height:auto;
       padding:14px 18px 12px;
       display:grid;
-      grid-template-rows:130px 54px 34px 108px minmax(420px, 1fr) 78px 32px;
+      grid-template-rows:130px 54px 0px 108px minmax(420px, 1fr) 78px 32px;
       gap:8px;
       position:relative;
       overflow:visible;
@@ -649,11 +649,7 @@
       <div class="tab" data-screen="kpis">📊 KPIs</div>
     </nav>
 
-    <div class="uploadBar">
-      <label class="btn" for="csvFile">Carregar CSV</label>
-      <input class="hiddenInput" type="file" id="csvFile" accept=".csv,.txt"/>
-      <button class="btn btnBlue" onclick="abrirColar()">Colar dados do Excel</button>
-    </div>
+    <div class="uploadBar" style="display:none;"></div>
 
     <section class="kpis">
       <div class="kpi" style="--accent:#e52b35">
@@ -738,29 +734,8 @@
       </div>
     </footer>
   </div>
-
-  <div class="modal" id="modal">
-    <div class="modalBox">
-      <h2>Colar dados do Excel</h2>
-      <p>Copie sua tabela com o cabeçalho: Unidade, Meta Mês, Saldo Mês, % Mês, Meta Ano, Saldo Ano, % Ano.</p>
-      <textarea id="pasteArea"></textarea>
-      <div class="modalBtns">
-        <button class="btn btnBlue" onclick="fecharColar()">Cancelar</button>
-        <button class="btn" onclick="aplicarColado()">Aplicar no painel</button>
-      </div>
-    </div>
-  </div>
-
   <script>
-    let dados = [
-      {unidade:"Apucarana", metaMes:36825.88, saldoMes:13915.86, metaAno:257781.16, saldoAno:-230498.38},
-      {unidade:"Castanhal", metaMes:236963.27, saldoMes:224514.16, metaAno:1917438.17, saldoAno:176608.13},
-      {unidade:"Eldorado", metaMes:158586.91, saldoMes:91827.64, metaAno:1094150.05, saldoAno:66324.83},
-      {unidade:"Lins", metaMes:647951.71, saldoMes:546887.52, metaAno:4433247.52, saldoAno:857025.24},
-      {unidade:"Nova Serrana", metaMes:16997.07, saldoMes:16997.07, metaAno:118979.49, saldoAno:37466.03},
-      {unidade:"Pouso Alto", metaMes:0, saldoMes:0, metaAno:0, saldoAno:-61522.01},
-      {unidade:"São Paulo", metaMes:2000.12, saldoMes:396.88, metaAno:14000.84, saldoAno:4548.28}
-    ];
+    let dados = [];
 
     function moeda(v) {
       return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
@@ -882,70 +857,6 @@
       document.getElementById("melhor").innerText=melhor.unidade;
       document.getElementById("pior").innerText=pior.unidade;
     }
-
-    function detectarSeparador(linha) {
-      if(linha.includes("\t")) return "\t";
-      if(linha.includes(";")) return ";";
-      return ",";
-    }
-
-    function parseTabela(texto) {
-      const linhas=texto.split(/\r?\n/).map(l=>l.replace(/^\uFEFF/,"").trim()).filter(Boolean);
-      const saida=[];
-      for(let i=1;i<linhas.length;i++) {
-        const sep=detectarSeparador(linhas[i]);
-        const c=linhas[i].split(sep).map(x=>x.trim().replace(/^"|"$/g,""));
-        if(c.length>=7 && !String(c[0]).toUpperCase().includes("TOTAL")) {
-          saida.push({
-            unidade:c[0],
-            metaMes:parseNum(c[1]),
-            saldoMes:parseNum(c[2]),
-            metaAno:parseNum(c[4]),
-            saldoAno:parseNum(c[5])
-          });
-        }
-      }
-      return saida;
-    }
-
-    document.getElementById("csvFile").addEventListener("change", function(e){
-      const file=e.target.files[0];
-      if(!file) return;
-      const reader=new FileReader();
-      reader.onload=function(ev){
-        const novos=parseTabela(ev.target.result);
-        if(novos.length){
-          dados=novos;
-          render();
-          statusAgora("CSV carregado");
-        } else {
-          alert("Não consegui ler. Confira as colunas da planilha.");
-        }
-      };
-      reader.readAsText(file,"windows-1252");
-    });
-
-    function abrirColar() {
-      document.getElementById("modal").style.display="grid";
-      document.getElementById("pasteArea").focus();
-    }
-
-    function fecharColar() {
-      document.getElementById("modal").style.display="none";
-    }
-
-    function aplicarColado() {
-      const novos=parseTabela(document.getElementById("pasteArea").value);
-      if(novos.length) {
-        dados=novos;
-        render();
-        statusAgora("Dados colados");
-        fecharColar();
-      } else {
-        alert("Copie a tabela completa do Excel, incluindo o cabeçalho.");
-      }
-    }
-
     function statusAgora(txt) {
       const agora=new Date();
       document.getElementById("status").innerText=txt+" "+agora.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
@@ -989,8 +900,34 @@
 
     document.getElementById("toggleApresentacao").addEventListener("click",()=>ativo?pausar():iniciar());
 
+    async function carregarDadosJson() {
+      try {
+        const resposta = await fetch("dados.json?cache=" + new Date().getTime());
+
+        if (!resposta.ok) {
+          throw new Error("Não foi possível carregar dados.json");
+        }
+
+        const dadosJson = await resposta.json();
+
+        if (Array.isArray(dadosJson) && dadosJson.length > 0) {
+          dados = dadosJson;
+          statusAgora("Dados atualizados");
+        } else {
+          statusAgora("dados.json vazio");
+        }
+      } catch (erro) {
+        console.error(erro);
+        statusAgora("Erro ao carregar dados");
+      }
+
+      render();
+    }
+
     dataAtual();
-    render();
+    carregarDadosJson();
+
+    setInterval(carregarDadosJson, 60000);
   </script>
 </body>
 </html>
